@@ -9,12 +9,13 @@ import com.droid.hkszkiller.http.Utils;
 import com.droid.hkszkiller.models.BasicResponse;
 import com.droid.hkszkiller.models.Certificate;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.List;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Response;
 import rx.Observable;
 import rx.functions.Action0;
@@ -52,6 +53,20 @@ public class ExampleUnitTest {
         Utils.saveToFile(random + ".bin", null);
     }
 
+
+
+    @Test
+    public void input_test() throws IOException {
+        InputStreamReader is = new InputStreamReader(System.in); //new构造InputStreamReader对象
+        BufferedReader br = new BufferedReader(is); //拿构造的方法传到BufferedReader中，此时获取到的就是整个缓存流
+        String name = null;
+        do {
+            System.out.println("ReadTest, Please Enter Data:");
+            name = br.readLine();
+            System.out.println("ReadTest Output:" + name);
+        }while (name == null);
+    }
+
     @Test
     public void verify_test1() {
         double random = Math.random();
@@ -64,26 +79,41 @@ public class ExampleUnitTest {
             e.printStackTrace();
         }
 
-        Call<BasicResponse<List<Certificate>>> certificateListCall = Client.getInstance().getApi().getCertificateList1();
+//        try {
+//            Call<BasicResponse<List<Certificate>>> certificateListCall = ClientProxy.getInstance().getApi().getCertificateList1();
+//            Response<BasicResponse<List<Certificate>>> response = certificateListCall.execute();
+//            System.out.println("onResponse:" + response);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         try {
-            Response<BasicResponse<List<Certificate>>> response = certificateListCall.execute();
-            System.out.println("onResponse:" + response);
+            int certType = 4;
+            String certNo = "G49480256";
+            String pwd = "c00134385";
+            String verifyCode;
+            System.out.println("ReadTest, Please Enter Data:");
+            InputStreamReader is = new InputStreamReader(System.in); //new构造InputStreamReader对象
+            BufferedReader br = new BufferedReader(is); //拿构造的方法传到BufferedReader中，此时获取到的就是整个缓存流
+            while (true) {
+                verifyCode = br.readLine();
+                if(null != verifyCode) {
+                    System.out.println("ReadTest Output:" + verifyCode);
+                    break;
+                }
+            }
+//
+//            Call<ResponseBody> responseBodyCall = ClientProxy.getInstance().getApi().login(certType,
+//                    Base64.getEncoder().encodeToString(certNo.getBytes(StandardCharsets.UTF_8)),
+//                    Base64.getEncoder().encodeToString(Utils.md5(pwd).getBytes(StandardCharsets.UTF_8)),
+//                    verifyCode);
+//            Response<ResponseBody> response = responseBodyCall.execute();
+//            System.out.println("onResponse:" + response);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-//        certificateListCall.enqueue(new Callback<BasicResponse<List<Certificate>>>() {
-//            @Override
-//            public void onResponse(Call<BasicResponse<List<Certificate>>> call, Response<BasicResponse<List<Certificate>>> response) {
-//                System.out.println("onResponse:" + response);
-//            }
-//
-//            @Override
-//            public void onFailure(Call<BasicResponse<List<Certificate>>> call, Throwable t) {
-//                System.out.println("onFailure:" + t);
-//            }
-//        });
+
         System.out.println("exit:" + Utils.currentTimestamp());
         try {
             Thread.sleep(1000*3);
