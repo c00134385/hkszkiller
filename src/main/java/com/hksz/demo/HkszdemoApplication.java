@@ -89,16 +89,30 @@ public class HkszdemoApplication {
 //            e.printStackTrace();
 //        }
 
-//        getUserInfo
-        System.out.println("getUserInfo");
-        try {
-            Call<BasicResponse<UserInfo>> call = Client.getInstance().getApi().getUserInfo();
-            Response<BasicResponse<UserInfo>> response = call.execute();
-            System.out.println("response: " + new Gson().toJson(response.body()));
-        } catch (IOException e) {
-            e.printStackTrace();
+        int count = 0;
+        while (true) {
+            //        getUserInfo
+            System.out.println("getUserInfo");
+            try {
+                Call<BasicResponse<UserInfo>> call = Client.getInstance().getApi().getUserInfo();
+                Response<BasicResponse<UserInfo>> response = call.execute();
+                if(null != response.body()) {
+                    System.out.println("response: " + new Gson().toJson(response.body()));
+                    if(200 != response.body().getStatus()) {
+                        break;
+                    }
+                }
+                Thread.sleep(1000 * 5);
+            } catch (IOException | InterruptedException e) {
+                e.printStackTrace();
+            }
+            count ++;
         }
 
+
+        if(count > 0){
+            return;
+        }
 //        isCanReserve
         System.out.println("isCanReserve");
         try {
