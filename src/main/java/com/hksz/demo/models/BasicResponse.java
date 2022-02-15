@@ -1,7 +1,7 @@
 package com.hksz.demo.models;
 
 public class BasicResponse<T> {
-    private int statue;
+    private int status;
     private String msg;
     private T data;
 
@@ -13,12 +13,12 @@ public class BasicResponse<T> {
         this.msg = msg;
     }
 
-    public int getStatue() {
-        return statue;
+    public int getStatus() {
+        return status;
     }
 
-    public void setStatue(int statue) {
-        this.statue = statue;
+    public void setStatus(int status) {
+        this.status = status;
     }
 
     public T getData() {

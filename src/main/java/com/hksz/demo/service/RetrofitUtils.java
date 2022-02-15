@@ -4,6 +4,7 @@ package com.hksz.demo.service;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import okhttp3.Cookie;
 import okhttp3.CookieJar;
@@ -17,7 +18,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class RetrofitUtils {
 
     private Retrofit retrofit;
-    private List<Cookie> cookies = new ArrayList<>();
+    static String cookieHeader = "cookie";
+    static String setCookieHeader = "set-cookie";
+    private List<Cookie> cookies;
 
     RetrofitUtils() {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
@@ -30,12 +33,18 @@ public class RetrofitUtils {
                 .cookieJar(new CookieJar() {
                     @Override
                     public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
-                        setCookies(cookies);
+                        if(url.pathSegments().contains("getVerify")) {
+                            saveCookies(cookies);
+                        }
                         System.out.println("cookies url: " + url.toString());
-//                        for (Cookie cookie : cookies)
-//                        {
-//                            System.out.println("cookies: " + cookie.toString());
-//                        }
+                        if(null != cookies) {
+                            cookies.forEach(new Consumer<Cookie>() {
+                                @Override
+                                public void accept(Cookie cookie) {
+                                    System.out.println("cookie: " + cookie);
+                                }
+                            });
+                        }
                     }
 
                     @Override
@@ -47,7 +56,9 @@ public class RetrofitUtils {
 //                                .build();
 //                        cookies.add(cookie);
 //                        cookies.addAll(getCookies());
-                        return getCookies();
+//                        return getCookies();
+                        List<Cookie> cookies = loadCookies();
+                        return (null != cookies)?cookies:new ArrayList<Cookie>();
                     }
                 })
                 .build();
@@ -64,11 +75,11 @@ public class RetrofitUtils {
         return retrofit;
     }
 
-    public List<Cookie> getCookies() {
+    public List<Cookie> loadCookies() {
         return cookies;
     }
 
-    public void setCookies(List<Cookie> cookies) {
+    public void saveCookies(List<Cookie> cookies) {
         this.cookies = cookies;
     }
 }
