@@ -19,6 +19,12 @@ public class Test1 {
         SpringApplication.run(HkszdemoApplication.class, args);
         System.out.println("getCertificateList");
 
+        System.out.println("startTime"+ TimeManager.beginTime());
+        System.out.println("endTime"+ TimeManager.endTime());
+
+        System.out.println("isAfter " + new Date().after(TimeManager.endTime()));
+        System.out.println("isBefore " + new Date().before(TimeManager.endTime()));
+
         CountDownLatch countDownLatch = new CountDownLatch(1);
 
         Calendar calendar = Calendar.getInstance();

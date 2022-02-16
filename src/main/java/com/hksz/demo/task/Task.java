@@ -1,7 +1,7 @@
 package com.hksz.demo.task;
 
 import com.google.gson.Gson;
-import com.hksz.demo.Configure;
+import com.hksz.demo.TimeManager;
 import com.hksz.demo.models.*;
 import com.hksz.demo.service.ClientApi;
 import com.hksz.demo.service.RetrofitUtils;
@@ -11,7 +11,6 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -34,8 +33,6 @@ public class Task {
 
     private Thread threadForCheckingReserve;
     private Thread threadForgetDistrictHouseList;
-
-    private Timer timerForConfirmOrder;
     Queue<ConfirmOrderTask> confirmOrderTaskList = new LinkedList<>();
 
     public Task(UserAccount userAccount) {
@@ -122,6 +119,9 @@ public class Task {
                 System.out.println("getDistrictHouseList");
                 while (true) {
                     try {
+                        if(new Date().after(TimeManager.endTime())) {
+                            break;
+                        }
                         Call<BasicResponse<List<RoomInfo>>> call = api.getDistrictHouseList(null);
                         Response<BasicResponse<List<RoomInfo>>> response = call.execute();
                         if(response.code() != 200) {
@@ -166,54 +166,5 @@ public class Task {
             }
         });
         threadForCheckingReserve.start();
-    }
-
-    void startOrderTimer() {
-        System.out.println("prepare startOrderTimer confirmOrder");
-        timerForConfirmOrder = new Timer();
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.setTimeInMillis(calendar.getTimeInMillis() + Configure.startTime - Configure.timeDelay);
-        System.out.println("calendar: " + calendar.getTime());
-        timerForConfirmOrder.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                System.out.println("startOrderTimer confirmOrder");
-                boolean confirmed = false;
-                while (!confirmed){
-                    if(null != roomInfos) {
-                        for(int i = roomInfos.size(); i > 0; i--) {
-//                            confirmOrder(roomInfos.get(i));
-                            new ConfirmOrderTask(api, roomInfos.get(i-1));
-                        }
-                        System.out.println("confirmOrder done.");
-                        confirmed = true;
-                    }
-                    try {
-                        Thread.sleep(10);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }, calendar.getTime());
-    }
-
-    private void confirmOrder(RoomInfo roomInfo) {
-//        String checkInDate = new SimpleDateFormat("yyyy-MM-dd").format(roomInfo.getDate());
-        System.out.println("confirmOrder");
-        try {
-            Call<ResponseBody> call = api.confirmOrder(
-                    new SimpleDateFormat("yyyy-MM-dd").format(roomInfo.getDate()),
-                    roomInfo.getTimespan(),
-                    roomInfo.getSign()
-            );
-            Response<ResponseBody> response = call.execute();
-            System.out.println("response: " + new Gson().toJson(response.body()));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }
