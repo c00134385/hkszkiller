@@ -25,7 +25,6 @@ import java.util.function.Consumer;
 @SpringBootApplication
 public class HkszdemoApplication {
 
-
     public static void main(String[] args) {
         SpringApplication.run(HkszdemoApplication.class, args);
         System.out.println("getCertificateList");
@@ -44,6 +43,7 @@ public class HkszdemoApplication {
 
         System.out.println("end");
     }
+
 
 //    public static void _main(String[] args) {
 //        SpringApplication.run(HkszdemoApplication.class, args);
