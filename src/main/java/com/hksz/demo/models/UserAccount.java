@@ -3,26 +3,26 @@ package com.hksz.demo.models;
 import java.util.Arrays;
 import java.util.List;
 
-public class LoginInfo {
+public class UserAccount {
     private int certType;
     private String certNo;
     private String pwd;
 
-    public static LoginInfo parseFromString(String text) {
+    public static UserAccount parseFromString(String text) {
         try {
             List<String> array = Arrays.asList(text.split(","));
             int certType = Integer.parseInt(array.get(0));
             String certNo = array.get(1);
             String pwd = array.get(2);
-            LoginInfo loginInfo = new LoginInfo(certType,certNo,pwd);
-            return loginInfo;
+            UserAccount userAccount = new UserAccount(certType,certNo,pwd);
+            return userAccount;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    public LoginInfo(int certType, String certNo, String pwd) {
+    public UserAccount(int certType, String certNo, String pwd) {
         this.certType = certType;
         this.certNo = certNo;
         this.pwd = pwd;

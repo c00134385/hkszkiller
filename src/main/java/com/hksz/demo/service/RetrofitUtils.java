@@ -22,7 +22,7 @@ public class RetrofitUtils {
     static String setCookieHeader = "set-cookie";
     private List<Cookie> cookies;
 
-    RetrofitUtils() {
+    public RetrofitUtils() {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient client = new OkHttpClient.Builder()
