@@ -1,4 +1,4 @@
-package com.hksz.demo.service;
+package com.hksz.demo;
 
 import com.hksz.demo.models.UserAccount;
 
@@ -7,10 +7,9 @@ import java.util.List;
 
 public class Configure {
 //    public static String host = "http://fanyi.youdao.com/";
-    static String host = "https://hk.sz.gov.cn:8118/";
-
+    public static String host = "https://hk.sz.gov.cn:8118/";
     public static long timeDelay = 0;
-
+    public static long startTime = 10 * 60 * 60 * 1000;  //"10:00:00";
     static String[] userAccounts =
             {
             "4,H09471876,ed521126",

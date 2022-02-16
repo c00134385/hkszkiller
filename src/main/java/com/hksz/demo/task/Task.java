@@ -1,10 +1,10 @@
 package com.hksz.demo.task;
 
 import com.google.gson.Gson;
+import com.hksz.demo.Configure;
 import com.hksz.demo.models.*;
 import com.hksz.demo.service.Client;
 import com.hksz.demo.service.ClientApi;
-import com.hksz.demo.service.Configure;
 import com.hksz.demo.service.RetrofitUtils;
 import com.hksz.demo.utils.Utils;
 import okhttp3.ResponseBody;
@@ -114,7 +114,7 @@ public class Task {
                 if(200 == response.body().getStatus()) {
                     break;
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -169,19 +169,18 @@ public class Task {
     }
 
     private void startThreadForCheckingReserve() {
-
         threadForCheckingReserve = new Thread(new Runnable() {
             @Override
             public void run() {
                 ////        isCanReserve
-        System.out.println("isCanReserve");
-        try {
-            Call<BasicResponse> call = Client.getInstance().getApi().isCanReserve();
-            Response<BasicResponse> response = call.execute();
-            System.out.println("response: " + new Gson().toJson(response.body()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+                System.out.println("isCanReserve");
+                try {
+                    Call<BasicResponse> call = Client.getInstance().getApi().isCanReserve();
+                    Response<BasicResponse> response = call.execute();
+                    System.out.println("response: " + new Gson().toJson(response.body()));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
         threadForCheckingReserve.start();
@@ -191,25 +190,32 @@ public class Task {
         System.out.println("prepare startOrderTimer confirmOrder");
         timerForConfirmOrder = new Timer();
         Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR, 10);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
-        Date date = calendar.getTime();
-
-        long delay = date.getTime() - System.currentTimeMillis() - Configure.timeDelay;
-
-        System.out.println("date: " + date);
+        calendar.setTimeInMillis(calendar.getTimeInMillis() + Configure.startTime - Configure.timeDelay);
+        System.out.println("calendar: " + calendar.getTime());
         timerForConfirmOrder.schedule(new TimerTask() {
             @Override
             public void run() {
                 System.out.println("startOrderTimer confirmOrder");
-                if(null != roomInfos) {
-                    for(int i = 0; i < roomInfos.size(); i++) {
-                        confirmOrder(roomInfos.get(i));
+                boolean confirmed = false;
+                while (!confirmed){
+                    if(null != roomInfos) {
+                        for(int i = 0; i < roomInfos.size(); i++) {
+                            confirmOrder(roomInfos.get(i));
+                        }
+                        System.out.println("confirmOrder done.");
+                        confirmed = true;
+                    }
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
                 }
             }
-        }, delay);
+        }, calendar.getTime());
     }
 
     private void confirmOrder(RoomInfo roomInfo) {
@@ -223,7 +229,7 @@ public class Task {
             );
             Response<ResponseBody> response = call.execute();
             System.out.println("response: " + new Gson().toJson(response.body()));
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

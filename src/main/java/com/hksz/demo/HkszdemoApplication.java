@@ -1,14 +1,10 @@
 package com.hksz.demo;
 
 import com.google.gson.Gson;
-import com.hksz.demo.models.BasicResponse;
 import com.hksz.demo.models.RoomInfo;
 import com.hksz.demo.models.UserAccount;
-import com.hksz.demo.models.UserInfo;
 import com.hksz.demo.service.Client;
-import com.hksz.demo.service.Configure;
 import com.hksz.demo.task.Task;
-import com.hksz.demo.utils.Utils;
 import okhttp3.ResponseBody;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -17,10 +13,8 @@ import retrofit2.Response;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
-import java.util.function.Consumer;
 
 @SpringBootApplication
 public class HkszdemoApplication {
@@ -202,21 +196,4 @@ public class HkszdemoApplication {
 //
 //        System.out.println("---------------- end -----------------");
 //    }
-
-    static void confirmOrder(RoomInfo roomInfo) {
-        String checkInDate = new SimpleDateFormat("yyyy-MM-dd").format(roomInfo.getDate());
-        System.out.println("confirmOrder");
-        try {
-            Call<ResponseBody> call = Client.getInstance().getApi().confirmOrder(
-                    new SimpleDateFormat("yyyy-MM-dd").format(roomInfo.getDate()),
-                    roomInfo.getTimespan(),
-                    roomInfo.getSign()
-            );
-            Response<ResponseBody> response = call.execute();
-            System.out.println("response: " + new Gson().toJson(response.body()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
 }
