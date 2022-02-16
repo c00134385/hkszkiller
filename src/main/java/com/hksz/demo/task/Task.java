@@ -3,7 +3,6 @@ package com.hksz.demo.task;
 import com.google.gson.Gson;
 import com.hksz.demo.Configure;
 import com.hksz.demo.models.*;
-import com.hksz.demo.service.Client;
 import com.hksz.demo.service.ClientApi;
 import com.hksz.demo.service.RetrofitUtils;
 import com.hksz.demo.utils.Utils;
@@ -33,12 +32,11 @@ public class Task {
     private UserInfo userInfo;
     private List<RoomInfo> roomInfos;
 
-    private Thread threadForLogin;
     private Thread threadForCheckingReserve;
     private Thread threadForgetDistrictHouseList;
 
     private Timer timerForConfirmOrder;
-
+    Queue<ConfirmOrderTask> confirmOrderTaskList = new LinkedList<>();
 
     public Task(UserAccount userAccount) {
         this.userAccount = userAccount;
@@ -46,54 +44,35 @@ public class Task {
     }
 
     public void start() {
-
-//        try {
-//            //        getCertificateList
-//            System.out.println("getCertificateList");
-//            Call call = Client.getInstance().getApi().getCertificateList();
-//            Response response = call.execute();
-//            System.out.println("response: " + response);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//
-//
-//        try {
-//            //        System.out.println("getVerify");
-//            System.out.println("getVerify");
-//
-//            double random = Math.random();
-//            Call call = Client.getInstance().getApi().getVerify(random);
-//            Response response = call.execute();
-//            System.out.println("response: " + response);
-//            verifyCodePath = random + ".jfif";
-//            Utils.saveToFile(verifyCodePath, response.body().bytes());
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
-        //        getCertificateList
-
-        try {
-            System.out.println("getCertificateList");
-            Call<BasicResponse<List<Certificate>>> call = Client.getInstance().getApi().getCertificateList();
-            Response<BasicResponse<List<Certificate>>> response = call.execute();
-            certificates = response.body().getData();
-            System.out.println("response: " + response);
-        } catch (IOException e) {
-            e.printStackTrace();
+        while (true) {
+            try {
+                System.out.println("getCertificateList");
+                Call<BasicResponse<List<Certificate>>> call = api.getCertificateList();
+                Response<BasicResponse<List<Certificate>>> response = call.execute();
+                certificates = response.body().getData();
+                System.out.println("response: " + response);
+                break;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
-//        getVerify
-        try {
-            System.out.println("getVerify");
-            double random = Math.random();
-            Call<ResponseBody> call = Client.getInstance().getApi().getVerify(random);
-            Response<ResponseBody> response = call.execute();
-            System.out.println("response: " + response);
-            Utils.saveToFile(String.valueOf(random) + ".jfif", response.body().bytes());
-        } catch (IOException e) {
-            e.printStackTrace();
+
+        while (true) {
+            //        getVerify
+            try {
+                System.out.println("getVerify");
+                double random = Math.random();
+                Call<ResponseBody> call = api.getVerify(random);
+                Response<ResponseBody> response = call.execute();
+                System.out.println("response: " + response);
+                if(200 == response.code()) {
+                    Utils.saveToFile(String.valueOf(random) + ".jfif", response.body().bytes());
+                    break;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
 //        login
@@ -108,7 +87,7 @@ public class Task {
                 System.out.println("please input verify code: ");
                 Scanner sc = new Scanner(System.in);
                 String verifyCode = sc.nextLine();
-                Call<BasicResponse> call = Client.getInstance().getApi().login(certType, certNo, pwd, verifyCode);
+                Call<BasicResponse> call = api.login(certType, certNo, pwd, verifyCode);
                 Response<BasicResponse> response = call.execute();
                 System.out.println("response: " + response);
                 if(200 == response.body().getStatus()) {
@@ -122,13 +101,13 @@ public class Task {
 
         try {
             System.out.println("getUserInfo");
-            Call<BasicResponse<UserInfo>> call = Client.getInstance().getApi().getUserInfo();
+            Call<BasicResponse<UserInfo>> call = api.getUserInfo();
             Response<BasicResponse<UserInfo>> response = call.execute();
             System.out.println("response: " + new Gson().toJson(response.body()));
             if(200 == response.body().getStatus()) {
                 userInfo = response.body().getData();
                 startThreadForgetDistrictHouseList();
-                startOrderTimer();
+//                startOrderTimer();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -143,21 +122,24 @@ public class Task {
                 System.out.println("getDistrictHouseList");
                 while (true) {
                     try {
-                        Call<BasicResponse<List<RoomInfo>>> call = Client.getInstance().getApi().getDistrictHouseList(null);
+                        Call<BasicResponse<List<RoomInfo>>> call = api.getDistrictHouseList(null);
                         Response<BasicResponse<List<RoomInfo>>> response = call.execute();
+                        if(response.code() != 200) {
+                            continue;
+                        }
                         System.out.println("response: " + new Gson().toJson(response.body()));
-
                         if (200 == response.body().getStatus()) {
                             roomInfos = response.body().getData();
-                            if (null != roomInfos) {
-                                roomInfos.forEach(new Consumer<RoomInfo>() {
-                                    @Override
-                                    public void accept(RoomInfo roomInfo) {
-                                        System.out.println("roomInfo: " + new Gson().toJson(roomInfo));
-//                                        confirmOrder(roomInfo);
+                            roomInfos.forEach(new Consumer<RoomInfo>() {
+                                @Override
+                                public void accept(RoomInfo roomInfo) {
+                                    confirmOrderTaskList.offer(new ConfirmOrderTask(api, roomInfo));
+                                    while (confirmOrderTaskList.size() > 100) {
+                                        ConfirmOrderTask task = confirmOrderTaskList.poll();
+                                        task.cancel();
                                     }
-                                });
-                            }
+                                }
+                            });
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -175,7 +157,7 @@ public class Task {
                 ////        isCanReserve
                 System.out.println("isCanReserve");
                 try {
-                    Call<BasicResponse> call = Client.getInstance().getApi().isCanReserve();
+                    Call<BasicResponse> call = api.isCanReserve();
                     Response<BasicResponse> response = call.execute();
                     System.out.println("response: " + new Gson().toJson(response.body()));
                 } catch (IOException e) {
@@ -202,8 +184,9 @@ public class Task {
                 boolean confirmed = false;
                 while (!confirmed){
                     if(null != roomInfos) {
-                        for(int i = 0; i < roomInfos.size(); i++) {
-                            confirmOrder(roomInfos.get(i));
+                        for(int i = roomInfos.size(); i > 0; i--) {
+//                            confirmOrder(roomInfos.get(i));
+                            new ConfirmOrderTask(api, roomInfos.get(i-1));
                         }
                         System.out.println("confirmOrder done.");
                         confirmed = true;
@@ -222,7 +205,7 @@ public class Task {
 //        String checkInDate = new SimpleDateFormat("yyyy-MM-dd").format(roomInfo.getDate());
         System.out.println("confirmOrder");
         try {
-            Call<ResponseBody> call = Client.getInstance().getApi().confirmOrder(
+            Call<ResponseBody> call = api.confirmOrder(
                     new SimpleDateFormat("yyyy-MM-dd").format(roomInfo.getDate()),
                     roomInfo.getTimespan(),
                     roomInfo.getSign()
@@ -233,5 +216,4 @@ public class Task {
             e.printStackTrace();
         }
     }
-
 }
