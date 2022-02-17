@@ -28,15 +28,14 @@ public interface ClientApi {
 //    @POST("/nationality/getCertificateList")
 //    Observable<BasicResponse<List<Certificate>>> getCertificateList();
 
+    @GET("/")
+    Call<ResponseBody> index();
+
     @POST("/nationality/getCertificateList")
     Call<BasicResponse<List<Certificate>>> getCertificateList();
 
     @GET("/user/getVerify")
     Call<ResponseBody> getVerify(@Query("random") double random);
-
-    @POST("/user/login")
-    @Headers({"Content-Type: application/json"})
-    Call<ResponseBody> login1(@Body RequestBody body);
 
     @POST("/user/login")
     @FormUrlEncoded
@@ -73,5 +72,15 @@ public interface ClientApi {
             @Query("checkinDate") String checkinDate,
             @Query("t") long timespan,
             @Query("s") String sign
+    );
+
+    @POST("/passInfo/submitReservation")
+    @FormUrlEncoded
+    Call<ResponseBody> submitReservation(
+            @Field("checkinDate") String checkinDate, //"yyyy-MM-dd"
+            @Field("checkCode") String checkCode,
+            @Field("houseType") String houseType,
+            @Field("t") String timeSpan,
+            @Field("s") long sign
     );
 }

@@ -3,7 +3,9 @@ package com.hksz.demo.service;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import com.hksz.demo.Configure;
@@ -21,28 +23,32 @@ public class RetrofitUtils {
     private Retrofit retrofit;
     static String cookieHeader = "cookie";
     static String setCookieHeader = "set-cookie";
-    private List<Cookie> cookies;
+    private List<Cookie> cookies = new ArrayList<>();
+    private Map<String, Cookie> cookieMap = new HashMap<>();
 
     public RetrofitUtils() {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient client = new OkHttpClient.Builder()
-                .addInterceptor(logging)
-                .addInterceptor(new TestInterceptor())
+//                .addInterceptor(logging)
+//                .addInterceptor(new TestInterceptor())
+//                .addInterceptor(new CookiesInterceptor())
+                .addNetworkInterceptor(new LoggerInterceptor())
                 .readTimeout(Duration.ofSeconds(60))
                 .connectTimeout(Duration.ofSeconds(60))
                 .cookieJar(new CookieJar() {
                     @Override
                     public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
-                        if(url.pathSegments().contains("getVerify")) {
-                            saveCookies(cookies);
-                        }
+//                        if(url.pathSegments().contains("getVerify")) {
+//                            saveCookies(cookies);
+//                        }
+                        saveCookies(cookies);
                         System.out.println("cookies url: " + url.toString());
                         if(null != cookies) {
                             cookies.forEach(new Consumer<Cookie>() {
                                 @Override
                                 public void accept(Cookie cookie) {
-                                    System.out.println("cookie: " + cookie);
+                                    System.out.println("*cookie: " + cookie);
                                 }
                             });
                         }
@@ -50,14 +56,6 @@ public class RetrofitUtils {
 
                     @Override
                     public List<Cookie> loadForRequest(HttpUrl url) {
-//                        ArrayList<Cookie> cookies = new ArrayList<>();
-//                        Cookie cookie = new Cookie.Builder()
-//                                .hostOnlyDomain(url.host())
-//                                .name("SESSION").value("zyao89")
-//                                .build();
-//                        cookies.add(cookie);
-//                        cookies.addAll(getCookies());
-//                        return getCookies();
                         List<Cookie> cookies = loadCookies();
                         return (null != cookies)?cookies:new ArrayList<Cookie>();
                     }
@@ -77,10 +75,17 @@ public class RetrofitUtils {
     }
 
     public List<Cookie> loadCookies() {
-        return cookies;
+        return new ArrayList<>(cookieMap.values());
+//        return cookies;
     }
 
     public void saveCookies(List<Cookie> cookies) {
+        cookies.forEach(new Consumer<Cookie>() {
+            @Override
+            public void accept(Cookie cookie) {
+                cookieMap.put(cookie.name(), cookie);
+            }
+        });
         this.cookies = cookies;
     }
 }

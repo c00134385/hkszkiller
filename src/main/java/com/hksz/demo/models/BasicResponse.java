@@ -1,6 +1,6 @@
 package com.hksz.demo.models;
 
-public class BasicResponse<T> {
+public class BasicResponse<T> extends AutoSerializable {
     private int status;
     private String msg;
     private T data;
