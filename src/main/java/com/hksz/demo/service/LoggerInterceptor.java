@@ -14,6 +14,7 @@ public class LoggerInterceptor implements Interceptor {
         printRequest(request);
         Response response = chain.proceed(request);
         printResponse(response);
+        printResponseInfo(response);
         return response;
     }
 
@@ -24,17 +25,11 @@ public class LoggerInterceptor implements Interceptor {
             requestStartMessage += " (" + request.body().contentLength() + "-byte body)";
         }
         log(requestStartMessage);
-
         Headers headers = request.headers();
         for (int i = 0, count = headers.size(); i < count; i++) {
             String name = headers.name(i);
-            // Skip headers from the request body as they are explicitly logged above.
-//            if (!"Content-Type".equalsIgnoreCase(name) && !"Content-Length".equalsIgnoreCase(name)) {
-//                log(name + ": " + headers.value(i));
-//            }
             log(name + ": " + headers.value(i));
         }
-
     }
 
     private void printResponse(Response response) {
@@ -54,6 +49,10 @@ public class LoggerInterceptor implements Interceptor {
         }
         log("\n\n");
     }
+    private void printResponseInfo(Response response) {
+        log(response.toString());
+    }
+
 
     private void log(String message) {
         System.out.println(message);

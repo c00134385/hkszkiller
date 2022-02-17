@@ -17,8 +17,8 @@ public class TimeManager {
 
     public static Date endTime() {
         calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 1);
-        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 30);
         calendar.setTimeInMillis(calendar.getTimeInMillis() + Configure.startTime);
         return calendar.getTime();
     }

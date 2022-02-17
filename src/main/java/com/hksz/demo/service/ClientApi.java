@@ -79,7 +79,7 @@ public interface ClientApi {
     Call<ResponseBody> submitReservation(
             @Field("checkinDate") String checkinDate, //"yyyy-MM-dd"
             @Field("checkCode") String checkCode,
-            @Field("houseType") String houseType,
+            @Field("houseType") int houseType,
             @Field("t") String timeSpan,
             @Field("s") long sign
     );

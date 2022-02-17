@@ -23,17 +23,15 @@ public class RetrofitUtils {
     private Retrofit retrofit;
     static String cookieHeader = "cookie";
     static String setCookieHeader = "set-cookie";
-    private List<Cookie> cookies = new ArrayList<>();
     private Map<String, Cookie> cookieMap = new HashMap<>();
 
     public RetrofitUtils() {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient client = new OkHttpClient.Builder()
-//                .addInterceptor(logging)
-//                .addInterceptor(new TestInterceptor())
-//                .addInterceptor(new CookiesInterceptor())
-                .addNetworkInterceptor(new LoggerInterceptor())
+                .addInterceptor(logging)
+                .addInterceptor(new HeaderSettingInterceptor())
+//                .addNetworkInterceptor(new LoggerInterceptor())
                 .readTimeout(Duration.ofSeconds(60))
                 .connectTimeout(Duration.ofSeconds(60))
                 .cookieJar(new CookieJar() {
@@ -43,15 +41,15 @@ public class RetrofitUtils {
 //                            saveCookies(cookies);
 //                        }
                         saveCookies(cookies);
-                        System.out.println("cookies url: " + url.toString());
-                        if(null != cookies) {
-                            cookies.forEach(new Consumer<Cookie>() {
-                                @Override
-                                public void accept(Cookie cookie) {
-                                    System.out.println("*cookie: " + cookie);
-                                }
-                            });
-                        }
+//                        System.out.println("cookies url: " + url.toString());
+//                        if(null != cookies) {
+//                            cookies.forEach(new Consumer<Cookie>() {
+//                                @Override
+//                                public void accept(Cookie cookie) {
+//                                    System.out.println("*cookie: " + cookie);
+//                                }
+//                            });
+//                        }
                     }
 
                     @Override
@@ -76,7 +74,6 @@ public class RetrofitUtils {
 
     public List<Cookie> loadCookies() {
         return new ArrayList<>(cookieMap.values());
-//        return cookies;
     }
 
     public void saveCookies(List<Cookie> cookies) {
@@ -86,6 +83,5 @@ public class RetrofitUtils {
                 cookieMap.put(cookie.name(), cookie);
             }
         });
-        this.cookies = cookies;
     }
 }

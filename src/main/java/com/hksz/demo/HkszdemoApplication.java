@@ -25,6 +25,7 @@ public class HkszdemoApplication {
 
         CountDownLatch countDownLatch = new CountDownLatch(1);
 
+        countDownLatch.countDown();
         List<UserAccount> accounts = Configure.getUserAccounts();
         Task task = new Task(accounts.get(0));
         task.start();
