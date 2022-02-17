@@ -125,15 +125,16 @@ public class Task {
                         Call<BasicResponse<List<RoomInfo>>> call = api.getDistrictHouseList(null);
                         Response<BasicResponse<List<RoomInfo>>> response = call.execute();
                         if(response.code() != 200) {
+                            System.out.println("response: " + new Gson().toJson(response.body()));
                             continue;
                         }
-                        System.out.println("response: " + new Gson().toJson(response.body()));
                         if (200 == response.body().getStatus()) {
                             roomInfos = response.body().getData();
                             roomInfos.forEach(new Consumer<RoomInfo>() {
                                 @Override
                                 public void accept(RoomInfo roomInfo) {
                                     confirmOrderTaskList.offer(new ConfirmOrderTask(api, roomInfo));
+                                    System.out.println(new Gson().toJson(roomInfo));
                                     while (confirmOrderTaskList.size() > 100) {
                                         ConfirmOrderTask task = confirmOrderTaskList.poll();
                                         task.cancel();

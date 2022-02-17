@@ -26,7 +26,7 @@ public class ConfirmOrderTask extends Thread {
 
         timerForConfirmOrder = new Timer();
         Date beginTime = TimeManager.beginTime();
-        System.out.println("beginTime: " + beginTime);
+//        System.out.println("beginTime: " + beginTime);
         timerForConfirmOrder.schedule(new TimerTask() {
             @Override
             public void run() {
