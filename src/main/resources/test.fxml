@@ -3,13 +3,11 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainUI">
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hksz.demo.ui.UIController">
    <children>
-      <AnchorPane prefHeight="281.0" prefWidth="470.0">
-         <children>
-            <Button fx:id="button" layoutX="45.0" layoutY="33.0" mnemonicParsing="false" onAction="#evenButton" text="Button" />
-            <TextField fx:id="text" layoutX="45.0" layoutY="88.0" text="HelloWorld" />
-         </children>
-      </AnchorPane>
+      <Button fx:id="button" layoutX="45.0" layoutY="33.0" mnemonicParsing="false" onAction="#evenButton" text="Button" />
+      <TextField fx:id="text" layoutX="45.0" layoutY="88.0" text="HelloWorld" />
+      <Label fx:id="resultLabel" layoutX="45.0" layoutY="233.0" text="Label" />
+      <Button fx:id="chooseFile" layoutX="126.0" layoutY="33.0" mnemonicParsing="false" onAction="#doChooseFile" text="choose file" />
    </children>
 </AnchorPane>
