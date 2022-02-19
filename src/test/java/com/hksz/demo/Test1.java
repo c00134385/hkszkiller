@@ -3,6 +3,7 @@ package com.hksz.demo;
 import com.hksz.demo.utils.Utils;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -12,7 +13,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 
-@SpringBootApplication
+@SpringBootTest
 public class Test1 {
 
     public static void main(String[] args) {

@@ -10,6 +10,7 @@ import com.hksz.demo.utils.Utils;
 import okhttp3.ResponseBody;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.test.context.SpringBootTest;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -18,7 +19,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Scanner;
 
-@SpringBootApplication
+@SpringBootTest
 public class CookieTest {
 
     public static void main(String[] args) {
