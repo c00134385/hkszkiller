@@ -1,19 +1,11 @@
 package com.hksz.demo;
 
-import com.google.gson.Gson;
-import com.hksz.demo.models.RoomInfo;
 import com.hksz.demo.models.UserAccount;
-import com.hksz.demo.service.Client;
 import com.hksz.demo.task.Task;
-import okhttp3.ResponseBody;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import retrofit2.Call;
-import retrofit2.Response;
 
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 @SpringBootApplication

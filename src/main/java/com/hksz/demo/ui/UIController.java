@@ -3,10 +3,7 @@ package com.hksz.demo.ui;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 
 import java.io.File;
@@ -22,6 +19,9 @@ public class UIController implements Initializable {
 
     @FXML
     public Label resultLabel;
+
+    @FXML
+    public ListView userList;
 
 
     UIPresenter uiPresenter;
