@@ -46,8 +46,14 @@ public interface ClientApi {
             @Field("verifyCode") String verifyCode
     );
 
+    @GET("/user/logout")
+    Call<ResponseBody> logout();
+
     @POST("/user/getUserInfo")
     Call<BasicResponse<UserInfo>> getUserInfo();
+
+    @POST("/user/getUserInfo")
+    Call<BasicResponse> getUserInfo2();
 
     @POST("/user/getUserInfo")
     Call<ResponseBody> getUserInfo1();
@@ -80,7 +86,7 @@ public interface ClientApi {
             @Field("checkinDate") String checkinDate, //"yyyy-MM-dd"
             @Field("checkCode") String checkCode,
             @Field("houseType") int houseType,
-            @Field("t") String timeSpan,
-            @Field("s") long sign
+            @Field("t") long timeSpan,
+            @Field("s") String sign
     );
 }

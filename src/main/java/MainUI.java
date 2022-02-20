@@ -2,11 +2,13 @@ import com.google.gson.Gson;
 import com.hksz.demo.models.UserAccount;
 import com.hksz.demo.ui.UserPane;
 import javafx.application.Application;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -55,12 +57,6 @@ public class MainUI extends Application {
         VBox hBox = new VBox();
 
         Button openFileBtn = new Button("open file");
-//        openFileBtn.setOnAction(new EventHandler<ActionEvent>() {
-//            @Override
-//            public void handle(ActionEvent event) {
-//                hBox.getChildren().add(new Button("button3"));
-//            }
-//        });
         openFileBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -83,10 +79,26 @@ public class MainUI extends Application {
 //        hBox.getChildren().add(new Button("button2"));
 
 
-        Scene scene = new Scene(hBox);
+//        ListView<String> roomListView = new ListView<String>();
+////            roomListView.setItems();
+////        roomListView.setPrefWidth(100);
+////        roomListView.setItems(FXCollections.observableArrayList("1", "2", "3"));
+//        roomListView.setMaxWidth(100);
+//        hBox.getChildren().add(roomListView);
+
+
+        ScrollPane scrollPane = new ScrollPane();
+//        scrollPane.setMaxWidth(300D);
+//        scrollPane.setMaxHeight(300D);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setContent(hBox);
+
+        Scene scene = new Scene(scrollPane);
         primaryStage.setScene(scene);
-        primaryStage.setWidth(700);
+        primaryStage.setWidth(600);
         primaryStage.setHeight(600);
+//        primaryStage.setMaxWidth(600);
         primaryStage.show();
     }
 

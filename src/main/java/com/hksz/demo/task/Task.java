@@ -192,8 +192,8 @@ public class Task {
     void processOrder(String html) {
         String checkInDate;
         String checkCode;
-        String timespan;
-        long sign;
+        long timespan;
+        String sign;
         int houseType;
 
         synchronized (lock) {
@@ -210,8 +210,8 @@ public class Task {
                 return;
             }
             checkInDate = document.getElementById("hidCheckinDate").attr("value");
-            timespan = document.getElementById("hidTimespan").attr("value");
-            sign = Long.parseLong(document.getElementById("hidSign").attr("value"));
+            timespan = Long.parseLong(document.getElementById("hidTimespan").attr("value"));
+            sign = document.getElementById("hidSign").attr("value");
             houseType = Integer.parseInt(document.getElementById("hidHouseType").attr("value"));
 
             System.out.println("******** checkInDate: " + checkInDate);

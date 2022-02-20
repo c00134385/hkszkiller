@@ -66,11 +66,11 @@ public class ConfirmOrderTask extends Thread {
         }, beginTime);
     }
 
-    void cancel() {
+    public void cancel() {
         timerForConfirmOrder.cancel();
     }
 
-    interface Listener {
+    public interface Listener {
         void onConfirmed(String html);
     }
 }
