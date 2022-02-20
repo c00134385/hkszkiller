@@ -32,6 +32,7 @@ public class HackTask1 {
         timerForHack.schedule(new TimerTask() {
             @Override
             public void run() {
+//                System.out.println("HackTask1 timestamp:" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS").format(System.currentTimeMillis()));
                 RoomInfo roomInfo = listener.getRoomInfo();
                 try {
                     Call<ResponseBody> call = api.confirmOrder(

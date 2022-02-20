@@ -20,6 +20,8 @@ public class Test1 {
         SpringApplication.run(HkszdemoApplication.class, args);
         System.out.println("getCertificateList");
 
+        System.out.println(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS").format(TimeManager.beginTime()));
+        System.out.println(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS").format(TimeManager.beginTime()));
         System.out.println("startTime"+ TimeManager.beginTime());
         System.out.println("endTime"+ TimeManager.endTime());
 

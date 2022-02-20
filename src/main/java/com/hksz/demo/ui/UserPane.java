@@ -425,7 +425,7 @@ public class UserPane extends AnchorPane {
                             if(new Date().after(TimeManager.beginTime())) {
                                 break;
                             }
-                            Thread.sleep(1000 * 1);
+                            Thread.sleep(1000 * 3);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -548,7 +548,7 @@ public class UserPane extends AnchorPane {
     }
 
     void hack1() {
-        System.out.println("hack1");
+        updateResult("hackTask1 prepare");
         while (true) {
             hackTask1s.offer(new HackTask1(api, new HackTask1.Listener() {
                 @Override
@@ -578,10 +578,11 @@ public class UserPane extends AnchorPane {
                 break;
             }
         }
+        updateResult("hackTask1 prepared");
     }
 
     void hack2() {
-        System.out.println("hack2");
+        updateResult("hackTask2 prepare");
         while (true) {
             hackTask2s.offer(new HackTask2(api, new HackTask2.Listener() {
                 @Override
@@ -610,7 +611,7 @@ public class UserPane extends AnchorPane {
                 break;
             }
         }
-
+        updateResult("hackTask1 prepared");
     }
 
     void hack3() {
@@ -627,6 +628,7 @@ public class UserPane extends AnchorPane {
     }
 
     void updateResult(String message) {
+        System.out.println(message);
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
