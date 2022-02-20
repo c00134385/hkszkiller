@@ -23,6 +23,8 @@ public class Utils {
         try {
             FileOutputStream os = new FileOutputStream(filename);
             os.write(data);
+            os.flush();
+            os.close();
         } catch (IOException e) {
             e.printStackTrace();
             return -1;

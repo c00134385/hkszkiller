@@ -1,11 +1,14 @@
 package com.hksz.demo.ui;
 
 import com.google.gson.Gson;
+import com.hksz.demo.Configure;
 import com.hksz.demo.TimeManager;
 import com.hksz.demo.models.*;
 import com.hksz.demo.service.ClientApi;
 import com.hksz.demo.service.RetrofitUtils;
 import com.hksz.demo.task.ConfirmOrderTask;
+import com.hksz.demo.task.HackTask1;
+import com.hksz.demo.task.HackTask2;
 import com.hksz.demo.task.Task;
 import com.hksz.demo.utils.Utils;
 import javafx.application.Platform;
@@ -46,16 +49,29 @@ public class UserPane extends AnchorPane {
     private List<Certificate> certificates;
     UserState userState = UserState.IDLE;
     private String verifyCodeFile;
-    private String checkCodeFile;
     private String result;
+    private Label resultLabel;
+    private ImageView verifyCodeImageView;
+    TextField verifyCodeTextField;
     private boolean isLogin = false;
     private List<RoomInfo> roomInfos;
-    Queue<ConfirmOrderTask> confirmOrderTaskList = new LinkedList<>();
+
+    Queue<HackTask1> hackTask1s = new LinkedList<>();
+    Queue<HackTask2> hackTask2s = new LinkedList<>();
 
     public UserPane(UserAccount userAccount) {
         this.userAccount = userAccount;
         api = new RetrofitUtils().getRetrofit().create(ClientApi.class);
         setPadding(new Insets(30));
+
+        resultLabel = new Label();
+        resultLabel.setMaxWidth(900D);
+        resultLabel.setWrapText(true);
+        resultLabel.setMaxHeight(100D);
+        verifyCodeImageView = new ImageView();
+        verifyCodeTextField = new TextField();
+        verifyCodeTextField.setMaxWidth(100);
+
         initLayout();
     }
 
@@ -75,8 +91,7 @@ public class UserPane extends AnchorPane {
         /**
          * Row 2
          */
-        TextField verifyCodeTextField = new TextField();
-        verifyCodeTextField.setMaxWidth(100);
+
 
 //        TextField checkCodeTextField = new TextField();
 //        checkCodeTextField.setMaxWidth(100);
@@ -102,26 +117,17 @@ public class UserPane extends AnchorPane {
             });
             hBox.getChildren().add(initBtn);
 
-            if(null != verifyCodeFile && new File(verifyCodeFile).exists()) {
-                Image image = null;
-                try {
-                    image = new Image(getLocalFile(new File(verifyCodeFile)));
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
+            hBox.getChildren().add(verifyCodeImageView);
+            verifyCodeImageView.setFitWidth(200D);
+            verifyCodeImageView.setFitHeight(50D);
+            verifyCodeImageView.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent event) {
+                    getVerifyCode();
                 }
-                ImageView imageView = new ImageView(image);
-                imageView.setFitWidth(200D);
-                imageView.setFitHeight(50D);
-//            imageView.setPreserveRatio(true);
-                imageView.setOnMouseClicked(new EventHandler<MouseEvent>() {
-                    @Override
-                    public void handle(MouseEvent event) {
-                        getVerifyCode();
-                    }
-                });
-                hBox.getChildren().add(imageView);
-                hBox.getChildren().add(verifyCodeTextField);
-            }
+            });
+
+            hBox.getChildren().add(verifyCodeTextField);
 
 //            Button checkCodeBtn = new Button("Get Check Code");
 //            checkCodeBtn.setOnAction(new EventHandler<ActionEvent>() {
@@ -198,6 +204,32 @@ public class UserPane extends AnchorPane {
             });
             hBox.getChildren().add(queryRoomsBtn);
 
+            Button hackBtn1 = new Button("Hack 1");
+            hackBtn1.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    hack1();
+                }
+            });
+            hBox.getChildren().add(hackBtn1);
+
+            Button hackBtn2 = new Button("Hack2");
+            hackBtn2.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    hack2();
+                }
+            });
+            hBox.getChildren().add(hackBtn2);
+
+            Button hackBtn3 = new Button("Hack3");
+            hackBtn3.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    hack3();
+                }
+            });
+            hBox.getChildren().add(hackBtn3);
         }
 
         /**
@@ -241,10 +273,10 @@ public class UserPane extends AnchorPane {
          * Row 5
          */
         {
-            Label resultLabel = new Label(result);
-            resultLabel.setMaxWidth(300);
-            resultLabel.setStyle("-fx-color:Red;");
-            resultLabel.setWrapText(true);
+//            Label resultLabel = new Label(result);
+//            resultLabel.setMaxWidth(300);
+//            resultLabel.setStyle("-fx-color:Red;");
+//            resultLabel.setWrapText(true);
             vBox.getChildren().add(resultLabel);
         }
 
@@ -299,11 +331,17 @@ public class UserPane extends AnchorPane {
                     }
                     Utils.saveToFile(String.valueOf(random) + ".jfif", response.body().bytes());
                     verifyCodeFile = random + ".jfif";
+                    Image image = new Image(getLocalFile(new File(verifyCodeFile)));
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            verifyCodeImageView.setImage(image);
+                            verifyCodeTextField.clear();
+                        }
+                    });
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-
-                invalidate();
             }
         }).start();
     }
@@ -377,33 +415,17 @@ public class UserPane extends AnchorPane {
                     try {
                         Call<BasicResponse<List<RoomInfo>>> call = api.getDistrictHouseList(null);
                         Response<BasicResponse<List<RoomInfo>>> response = call.execute();
-                        if(response.code() != 200) {
-                            System.out.println("response: " + new Gson().toJson(response.body()));
-                            continue;
-                        }
                         if (response.isSuccessful()) {
+                            if(200 != response.body().getStatus()) {
+                                continue;
+                            }
                             roomInfos = response.body().getData();
+                            updateResult(new Gson().toJson(response.body()));
                             invalidate();
-                            roomInfos.forEach(new Consumer<RoomInfo>() {
-                                @Override
-                                public void accept(RoomInfo roomInfo) {
-//                                    confirmOrderTaskList.offer(new ConfirmOrderTask(api, roomInfo, new ConfirmOrderTask.Listener() {
-//                                        @Override
-//                                        public void onConfirmed(String html) {
-//                                            processOrder(html);
-//                                        }
-//                                    }));
-//                                    System.out.println(new Gson().toJson(roomInfo));
-//                                    while (confirmOrderTaskList.size() > 100) {
-//                                        ConfirmOrderTask task = confirmOrderTaskList.poll();
-//                                        task.cancel();
-//                                    }
-                                }
-                            });
-                            Thread.sleep(1000 * 3);
-                        }
-                        if(new Date().after(TimeManager.endTime())) {
-                            break;
+                            if(new Date().after(TimeManager.beginTime())) {
+                                break;
+                            }
+                            Thread.sleep(1000 * 1);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -525,6 +547,76 @@ public class UserPane extends AnchorPane {
         }).start();
     }
 
+    void hack1() {
+        System.out.println("hack1");
+        while (true) {
+            hackTask1s.offer(new HackTask1(api, new HackTask1.Listener() {
+                @Override
+                public RoomInfo getRoomInfo() {
+                    RoomInfo roomInfo = roomInfos.get(0);
+                    for(RoomInfo item: roomInfos) {
+                        if(item.getCount() > roomInfo.getCount()) {
+                            roomInfo = item;
+                        }
+                    }
+                    System.out.println(new Gson().toJson(roomInfo));
+                    return roomInfo;
+                }
+
+                @Override
+                public String getCheckCode() {
+                    return verifyCodeTextField.getText();
+                }
+
+                @Override
+                public void onResult(String result) {
+                    updateResult(result);
+                }
+            }));
+
+            if(hackTask1s.size() >= Configure.taskCount) {
+                break;
+            }
+        }
+    }
+
+    void hack2() {
+        System.out.println("hack2");
+        while (true) {
+            hackTask2s.offer(new HackTask2(api, new HackTask2.Listener() {
+                @Override
+                public RoomInfo getRoomInfo() {
+                    RoomInfo roomInfo = roomInfos.get(0);
+                    for(RoomInfo item: roomInfos) {
+                        if(item.getCount() > roomInfo.getCount()) {
+                            roomInfo = item;
+                        }
+                    }
+                    System.out.println(new Gson().toJson(roomInfo));
+                    return roomInfo;
+                }
+
+                @Override
+                public String getCheckCode() {
+                    return verifyCodeTextField.getText();
+                }
+
+                @Override
+                public void onResult(String result) {
+                    updateResult(result);
+                }
+            }));
+            if(hackTask2s.size() >= Configure.taskCount) {
+                break;
+            }
+        }
+
+    }
+
+    void hack3() {
+        System.out.println("hack3");
+    }
+
     void invalidate() {
         Platform.runLater(new Runnable() {
             @Override
@@ -535,8 +627,12 @@ public class UserPane extends AnchorPane {
     }
 
     void updateResult(String message) {
-        result = message;
-        invalidate();
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                resultLabel.setText(message);
+            }
+        });
     }
 
     String getLocalFile(File file) throws MalformedURLException {

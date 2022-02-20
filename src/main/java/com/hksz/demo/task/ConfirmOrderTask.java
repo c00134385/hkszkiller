@@ -53,8 +53,8 @@ public class ConfirmOrderTask extends Thread {
                         );
                         Response<ResponseBody> response = call.execute();
                         if(response.isSuccessful()) {
-                            System.out.println("response: " + response.body().string());
                             String html = response.body().string();
+                            System.out.println("response: " + html);
                             listener.onConfirmed(html);
                         }
 
