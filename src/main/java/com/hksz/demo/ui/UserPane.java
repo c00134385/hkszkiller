@@ -65,13 +65,12 @@ public class UserPane extends AnchorPane {
         setPadding(new Insets(30));
 
         resultLabel = new Label();
-        resultLabel.setMaxWidth(900D);
+//        resultLabel.setMaxWidth(900D);
         resultLabel.setWrapText(true);
-        resultLabel.setMaxHeight(100D);
+//        resultLabel.setMaxHeight(100D);
         verifyCodeImageView = new ImageView();
         verifyCodeTextField = new TextField();
         verifyCodeTextField.setMaxWidth(100);
-
         initLayout();
     }
 
@@ -79,12 +78,11 @@ public class UserPane extends AnchorPane {
 
     private void initLayout() {
         VBox vBox = new VBox();
-
         /**
          * Row 1
          */
         {
-            Label userAccountLabel = new Label(userAccount.getCertType() + "/" + userAccount.getCertNo() + "/" + userAccount.getPwd());
+            Label userAccountLabel = new Label(userAccount.getCertType() + " / " + userAccount.getCertNo() + " / " + userAccount.getPwd());
             vBox.getChildren().add(userAccountLabel);
         }
 
@@ -204,6 +202,15 @@ public class UserPane extends AnchorPane {
             });
             hBox.getChildren().add(queryRoomsBtn);
 
+            Button canBeReservedBtn = new Button("Can be Reserved");
+            canBeReservedBtn.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    canBeReserved();
+                }
+            });
+            hBox.getChildren().add(canBeReservedBtn);
+
             Button hackBtn1 = new Button("Hack 1");
             hackBtn1.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
@@ -264,7 +271,7 @@ public class UserPane extends AnchorPane {
                         return cell;
                     }
                 });
-                roomListView.setMaxHeight(250D);
+                roomListView.setMaxHeight(210D);
                 vBox.getChildren().add(roomListView);
             }
         }
@@ -524,6 +531,28 @@ public class UserPane extends AnchorPane {
         }).start();
     }
 
+    void canBeReserved() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Call<BasicResponse> call = api.isCanReserve();
+                    Response<BasicResponse> response = call.execute();
+                    System.out.println("response: " + response.raw().toString());
+                    if(response.isSuccessful()) {
+                        System.out.println("response: " + response.body().toString());
+                        updateResult(response.body().toString());
+                    } else {
+                        System.out.println("response: " + response.raw().toString());
+                        updateResult(response.raw().toString());
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
     void submitReservation(RoomInfo roomInfo, String checkCode, int houseType) {
         new Thread(new Runnable() {
             @Override
@@ -537,8 +566,11 @@ public class UserPane extends AnchorPane {
                             roomInfo.getSign()
                     );
                     Response<ResponseBody> response = call.execute();
-                    System.out.println("response: " + response.body().string());
                     if(response.isSuccessful()) {
+                        System.out.println("response: " + response.body().string());
+                    } else {
+                        System.out.println("response: " + response.raw().toString());
+                        System.out.println(response.errorBody());
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

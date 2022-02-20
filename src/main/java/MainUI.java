@@ -96,8 +96,8 @@ public class MainUI extends Application {
 
         Scene scene = new Scene(scrollPane);
         primaryStage.setScene(scene);
-        primaryStage.setWidth(600);
-        primaryStage.setHeight(600);
+        primaryStage.setWidth(960);
+        primaryStage.setHeight(720);
 //        primaryStage.setMaxWidth(600);
         primaryStage.show();
     }
