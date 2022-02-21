@@ -65,15 +65,13 @@ public class UserPane extends AnchorPane {
         setPadding(new Insets(30));
 
         resultLabel = new Label();
-//        resultLabel.setMaxWidth(900D);
         resultLabel.setWrapText(true);
-//        resultLabel.setMaxHeight(100D);
+        resultLabel.setPrefWidth(900D);
         verifyCodeImageView = new ImageView();
         verifyCodeTextField = new TextField();
         verifyCodeTextField.setMaxWidth(100);
         initLayout();
     }
-
 
 
     private void initLayout() {
@@ -237,13 +235,31 @@ public class UserPane extends AnchorPane {
                 }
             });
             hBox.getChildren().add(hackBtn3);
+
+            Button getCheckInBtn = new Button("Get CheckIn");
+            getCheckInBtn.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    getCheckInData();
+                }
+            });
+            hBox.getChildren().add(getCheckInBtn);
+
+            Button getCheckInListBtn = new Button("Get CheckInList");
+            getCheckInListBtn.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    getCheckInList();
+                }
+            });
+            hBox.getChildren().add(getCheckInListBtn);
         }
 
         /**
          * Row 4
          */
         {
-            if(null != roomInfos) {
+            if (null != roomInfos) {
                 ListView roomListView = new ListView<>(FXCollections.observableArrayList(roomInfos));
                 roomListView.setItems(FXCollections.observableArrayList(roomInfos));
                 roomListView.setCellFactory(new Callback<ListView, ListCell>() {
@@ -253,7 +269,7 @@ public class UserPane extends AnchorPane {
                             @Override
                             protected void updateItem(RoomInfo item, boolean empty) {
                                 super.updateItem(item, empty);
-                                if(!empty) {
+                                if (!empty) {
                                     setGraphic(new Label(new Gson().toJson(item)));
                                 }
                             }
@@ -357,14 +373,14 @@ public class UserPane extends AnchorPane {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                try{
+                try {
                     int certType = userAccount.getCertType();
                     String certNo = Base64.getEncoder().encodeToString(userAccount.getCertNo().getBytes());
                     String pwd = Base64.getEncoder().encodeToString(Utils.md5(userAccount.getPwd()).getBytes());
                     Call<BasicResponse> call = api.login(certType, certNo, pwd, verifyCode);
                     Response<BasicResponse> response = call.execute();
                     System.out.println("response: " + response);
-                    if(response.isSuccessful()) {
+                    if (response.isSuccessful()) {
                         updateResult(new Gson().toJson(response.body()));
                         isLogin = true;
                     } else {
@@ -385,7 +401,7 @@ public class UserPane extends AnchorPane {
                     Call<ResponseBody> call = api.logout();
                     Response<ResponseBody> response = call.execute();
                     System.out.println("response: " + response.body().string());
-                    if(response.isSuccessful()) {
+                    if (response.isSuccessful()) {
 
                     }
                 } catch (IOException e) {
@@ -402,7 +418,7 @@ public class UserPane extends AnchorPane {
                 try {
                     Call<BasicResponse<UserInfo>> call = api.getUserInfo();
                     Response<BasicResponse<UserInfo>> response = call.execute();
-                    if(response.isSuccessful()) {
+                    if (response.isSuccessful()) {
                         updateResult(new Gson().toJson(response.body()));
                         System.out.println("response: " + new Gson().toJson(response.body()));
                     }
@@ -414,25 +430,26 @@ public class UserPane extends AnchorPane {
     }
 
     boolean isPeriod = false;
+
     void queryRooms() {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                while(true) {
+                while (true) {
                     try {
                         Call<BasicResponse<List<RoomInfo>>> call = api.getDistrictHouseList(null);
                         Response<BasicResponse<List<RoomInfo>>> response = call.execute();
                         if (response.isSuccessful()) {
-                            if(200 != response.body().getStatus()) {
+                            if (200 != response.body().getStatus()) {
                                 continue;
                             }
                             roomInfos = response.body().getData();
                             updateResult(new Gson().toJson(response.body()));
                             invalidate();
-                            if(new Date().after(TimeManager.beginTime())) {
+                            Thread.sleep(1000 * 3);
+                            if (new Date().after(TimeManager.beginTime())) {
                                 break;
                             }
-                            Thread.sleep(1000 * 3);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -445,6 +462,7 @@ public class UserPane extends AnchorPane {
 
     private static Object lock = new Object();
     private boolean bReserved = false;
+
     void processOrder(String html) {
         String checkInDate;
         String checkCode;
@@ -453,13 +471,13 @@ public class UserPane extends AnchorPane {
         int houseType;
 
         synchronized (lock) {
-            if(bReserved) {
+            if (bReserved) {
                 System.out.println("Room reservation successfully.");
 //                return;
             }
 
             Document document = Jsoup.parse(html);
-            if(null == document.getElementById("hidCheckinDate")
+            if (null == document.getElementById("hidCheckinDate")
                     || null == document.getElementById("hidTimespan")
                     || null == document.getElementById("hidSign")
                     || null == document.getElementById("hidHouseType")) {
@@ -480,7 +498,7 @@ public class UserPane extends AnchorPane {
                     Call<ResponseBody> call = api.getVerify(random);
                     Response<ResponseBody> response = call.execute();
                     System.out.println("response: " + response.code());
-                    if(response.isSuccessful()) {
+                    if (response.isSuccessful()) {
                         Utils.saveToFile(String.valueOf(random) + ".jfif", response.body().bytes());
                     } else {
                         continue;
@@ -491,7 +509,7 @@ public class UserPane extends AnchorPane {
 
                     call = api.submitReservation(checkInDate, checkCode, houseType, timespan, sign);
                     response = call.execute();
-                    if(response.isSuccessful()) {
+                    if (response.isSuccessful()) {
                         bReserved = true;
                         System.out.println("" + response.body().string());
 
@@ -519,7 +537,7 @@ public class UserPane extends AnchorPane {
                             roomInfo.getSign()
                     );
                     Response<ResponseBody> response = call.execute();
-                    if(response.isSuccessful()) {
+                    if (response.isSuccessful()) {
                         System.out.println("response: " + response.body().string());
                         String html = response.body().string();
                     }
@@ -539,7 +557,7 @@ public class UserPane extends AnchorPane {
                     Call<BasicResponse> call = api.isCanReserve();
                     Response<BasicResponse> response = call.execute();
                     System.out.println("response: " + response.raw().toString());
-                    if(response.isSuccessful()) {
+                    if (response.isSuccessful()) {
                         System.out.println("response: " + response.body().toString());
                         updateResult(response.body().toString());
                     } else {
@@ -566,7 +584,7 @@ public class UserPane extends AnchorPane {
                             roomInfo.getSign()
                     );
                     Response<ResponseBody> response = call.execute();
-                    if(response.isSuccessful()) {
+                    if (response.isSuccessful()) {
                         System.out.println("response: " + response.body().string());
                     } else {
                         System.out.println("response: " + response.raw().toString());
@@ -582,12 +600,15 @@ public class UserPane extends AnchorPane {
     void hack1() {
         updateResult("hackTask1 prepare");
         while (true) {
+            if (hackTask1s.size() >= Configure.taskCount) {
+                break;
+            }
             hackTask1s.offer(new HackTask1(api, new HackTask1.Listener() {
                 @Override
                 public RoomInfo getRoomInfo() {
                     RoomInfo roomInfo = roomInfos.get(0);
-                    for(RoomInfo item: roomInfos) {
-                        if(item.getCount() > roomInfo.getCount()) {
+                    for (RoomInfo item : roomInfos) {
+                        if (item.getCount() > roomInfo.getCount()) {
                             roomInfo = item;
                         }
                     }
@@ -605,23 +626,22 @@ public class UserPane extends AnchorPane {
                     updateResult(result);
                 }
             }));
-
-            if(hackTask1s.size() >= Configure.taskCount) {
-                break;
-            }
         }
-        updateResult("hackTask1 prepared");
+        updateResult("hackTask1 prepared： " + hackTask1s.size());
     }
 
     void hack2() {
         updateResult("hackTask2 prepare");
         while (true) {
+            if (hackTask2s.size() >= Configure.taskCount) {
+                break;
+            }
             hackTask2s.offer(new HackTask2(api, new HackTask2.Listener() {
                 @Override
                 public RoomInfo getRoomInfo() {
                     RoomInfo roomInfo = roomInfos.get(0);
-                    for(RoomInfo item: roomInfos) {
-                        if(item.getCount() > roomInfo.getCount()) {
+                    for (RoomInfo item : roomInfos) {
+                        if (item.getCount() > roomInfo.getCount()) {
                             roomInfo = item;
                         }
                     }
@@ -639,15 +659,64 @@ public class UserPane extends AnchorPane {
                     updateResult(result);
                 }
             }));
-            if(hackTask2s.size() >= Configure.taskCount) {
-                break;
-            }
         }
-        updateResult("hackTask1 prepared");
+        updateResult("hackTask2 prepared： " + hackTask2s.size());
     }
 
     void hack3() {
         System.out.println("hack3");
+    }
+
+    void getCheckInData() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Call<ResponseBody> call = api.getCheckInDate();
+                Response<ResponseBody> response = null;
+                try {
+                    response = call.execute();
+                    String result;
+                    if (response.isSuccessful()) {
+                        result = response.body().string();
+                    } else {
+                        result = response.raw().toString();
+                    }
+                    System.out.println("response: " + result);
+                    updateResult(result);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }).start();
+    }
+
+    void getCheckInList() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Call<ResponseBody> call = api.getCheckInInfoList(1, 10);
+                Response<ResponseBody> response = null;
+                try {
+                    response = call.execute();
+                    handleResponse(response);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }).start();
+    }
+
+    void handleResponse(Response<ResponseBody> response) throws IOException {
+        String result;
+        if (response.isSuccessful()) {
+            result = response.body().string();
+        } else {
+            result = response.raw().toString();
+        }
+        System.out.println("response: " + result);
+        updateResult(result);
     }
 
     void invalidate() {
@@ -679,6 +748,7 @@ public class UserPane extends AnchorPane {
     enum UserState {
         IDLE(0),
         LOGGED(3);
+
         UserState(int value) {
             this.value = value;
         }

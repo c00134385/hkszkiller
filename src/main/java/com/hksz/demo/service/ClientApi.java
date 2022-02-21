@@ -62,7 +62,14 @@ public interface ClientApi {
     Call<BasicResponse> isCanReserve();
 
     @POST("/orderInfo/getCheckInDate")
-    Call<BasicResponse> getCheckInDate();
+    Call<ResponseBody> getCheckInDate();
+
+    @POST("/passInfo/getCheckInInfoList")
+    @FormUrlEncoded
+    Call<ResponseBody> getCheckInInfoList(
+            @Field("pageIndex") int pageIndex,
+            @Field("pageSize") int pageSize
+    );
 
     @POST("/passInfo/gerReserveOrderInfo")
     Call<BasicResponse> getReserveOrderInfo();
