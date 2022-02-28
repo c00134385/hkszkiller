@@ -599,11 +599,13 @@ public class UserPane extends AnchorPane {
 
     void hack1() {
         updateResult("hackTask1 prepare");
+
+        int i = 0;
         while (true) {
             if (hackTask1s.size() >= Configure.taskCount) {
                 break;
             }
-            hackTask1s.offer(new HackTask1(api, new HackTask1.Listener() {
+            hackTask1s.offer(new HackTask1(api, Configure.timeOffset + i++, new HackTask1.Listener() {
                 @Override
                 public RoomInfo getRoomInfo() {
                     RoomInfo roomInfo = roomInfos.get(0);
@@ -632,11 +634,12 @@ public class UserPane extends AnchorPane {
 
     void hack2() {
         updateResult("hackTask2 prepare");
+        int i = 0;
         while (true) {
             if (hackTask2s.size() >= Configure.taskCount) {
                 break;
             }
-            hackTask2s.offer(new HackTask2(api, new HackTask2.Listener() {
+            hackTask2s.offer(new HackTask2(api, Configure.timeOffset + i++, new HackTask2.Listener() {
                 @Override
                 public RoomInfo getRoomInfo() {
                     RoomInfo roomInfo = roomInfos.get(0);

@@ -13,7 +13,7 @@ public class TimeManager {
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
-        calendar.setTimeInMillis(calendar.getTimeInMillis() + Configure.timeOffset);
+        calendar.setTimeInMillis(calendar.getTimeInMillis());
         return calendar.getTime();
     }
 

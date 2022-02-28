@@ -9,7 +9,7 @@ public class Configure {
 //    public static String host = "http://fanyi.youdao.com/";
     public static String host = "https://hk.sz.gov.cn:8118/";
     public static long timeOffset = -100;
-    public static int taskCount = 100;
+    public static int taskCount = 110;
     private static String[] userAccounts =
             {
             "4,H09471876,ed521126",

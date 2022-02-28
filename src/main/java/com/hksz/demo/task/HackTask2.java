@@ -19,17 +19,17 @@ public class HackTask2 {
 
     private Timer timerForHack;
 
-    public HackTask2(ClientApi api, Listener listener) {
+    public HackTask2(ClientApi api, long timeOffset, Listener listener) {
         this.api = api;
         this.listener = listener;
 
         timerForHack = new Timer();
-        Date beginTime = TimeManager.beginTime();
+        Date beginTime = new Date(TimeManager.beginTime().getTime() + timeOffset);
+        System.out.println("hackTask2 beginTime: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS").format(beginTime));
         timerForHack.schedule(new TimerTask() {
             @Override
             public void run() {
                 RoomInfo roomInfo = listener.getRoomInfo();
-
                 String checkInDate = new SimpleDateFormat("yyyy-MM-dd").format(roomInfo.getDate());
                 String checkCode = listener.getCheckCode();
                 long timespan = roomInfo.getTimespan();

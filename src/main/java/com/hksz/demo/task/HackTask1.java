@@ -23,12 +23,13 @@ public class HackTask1 {
     private Listener listener;
     private Timer timerForHack;
 
-    public HackTask1(ClientApi api, Listener listener) {
+    public HackTask1(ClientApi api, long timeOffset, Listener listener) {
         this.api = api;
         this.listener = listener;
 
         timerForHack = new Timer();
-        Date beginTime = TimeManager.beginTime();
+        Date beginTime = new Date(TimeManager.beginTime().getTime() + timeOffset);
+        System.out.println("hackTask2 beginTime: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS").format(beginTime));
         timerForHack.schedule(new TimerTask() {
             @Override
             public void run() {
