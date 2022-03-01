@@ -2,6 +2,7 @@ package com.hksz.demo;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -51,6 +52,19 @@ public class HtmlParser {
         if(file.exists()) {
             try {
                 Document document = Jsoup.parse(file, null);
+//                Elements elements = document.getElementsByClass("card_info");
+//
+//                Elements elements1 = document.getElementsByAttribute("data-date");
+//                Elements elements2 = document.getElementsByAttribute("data-timespan");
+//                Elements elements3 = document.getElementsByAttribute("data-sign");
+//
+//                String checkinDate = elements1.last().attr("data-date");
+//                String timespan = elements1.last().attr("data-timespan");
+//                String sign = elements1.last().attr("data-sign");
+//
+//                System.out.println("file: ");
+//                System.exit(0);
+
 //                String checkInDate = document.getElementById("hidCheckinDate").attr("value");
 //                String timespan = document.getElementById("hidTimespan").attr("value");
 //                String sign = document.getElementById("hidSign").attr("value");

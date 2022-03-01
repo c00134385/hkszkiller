@@ -6,10 +6,7 @@ import com.hksz.demo.TimeManager;
 import com.hksz.demo.models.*;
 import com.hksz.demo.service.ClientApi;
 import com.hksz.demo.service.RetrofitUtils;
-import com.hksz.demo.task.ConfirmOrderTask;
-import com.hksz.demo.task.HackTask1;
-import com.hksz.demo.task.HackTask2;
-import com.hksz.demo.task.Task;
+import com.hksz.demo.task.*;
 import com.hksz.demo.utils.Utils;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -31,6 +28,7 @@ import javafx.util.Callback;
 import okhttp3.ResponseBody;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -58,6 +56,7 @@ public class UserPane extends AnchorPane {
 
     Queue<HackTask1> hackTask1s = new LinkedList<>();
     Queue<HackTask2> hackTask2s = new LinkedList<>();
+    Queue<TimerProcess> timerProcesses = new LinkedList<>();
 
     public UserPane(UserAccount userAccount) {
         this.userAccount = userAccount;
@@ -191,15 +190,6 @@ public class UserPane extends AnchorPane {
             });
             hBox.getChildren().add(getUserInfoBtn);
 
-            Button queryRoomsBtn = new Button("Query Rooms");
-            queryRoomsBtn.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                    queryRooms();
-                }
-            });
-            hBox.getChildren().add(queryRoomsBtn);
-
             Button canBeReservedBtn = new Button("Can be Reserved");
             canBeReservedBtn.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
@@ -209,11 +199,21 @@ public class UserPane extends AnchorPane {
             });
             hBox.getChildren().add(canBeReservedBtn);
 
+            Button queryRoomsBtn = new Button("Query Rooms");
+            queryRoomsBtn.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+//                    queryRooms();
+                    queryDetails();
+                }
+            });
+            hBox.getChildren().add(queryRoomsBtn);
+
             Button hackBtn1 = new Button("Hack 1");
             hackBtn1.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
-                    hack1();
+                    hack11();
                 }
             });
             hBox.getChildren().add(hackBtn1);
@@ -429,6 +429,27 @@ public class UserPane extends AnchorPane {
         }).start();
     }
 
+    void queryDetails() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+//                while (true) {
+                    try {
+                        Call<ResponseBody> call = api.passInfoDetail();
+                        Response<ResponseBody> response = call.execute();
+                        System.out.println(response);
+                        updateResult(response.body().string());
+                        if (response.isSuccessful()) {
+                        }
+//                        break;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+//                }
+            }
+        }).start();
+    }
+
     boolean isPeriod = false;
 
     void queryRooms() {
@@ -441,7 +462,7 @@ public class UserPane extends AnchorPane {
                         Response<BasicResponse<List<RoomInfo>>> response = call.execute();
                         if (response.isSuccessful()) {
                             if (200 != response.body().getStatus()) {
-                                continue;
+//                                continue;
                             }
                             roomInfos = response.body().getData();
                             updateResult(new Gson().toJson(response.body()));
@@ -451,6 +472,8 @@ public class UserPane extends AnchorPane {
                                 break;
                             }
                         }
+
+                        break;
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -597,6 +620,58 @@ public class UserPane extends AnchorPane {
         }).start();
     }
 
+    void hack11() {
+        updateResult("hackTask11 prepare");
+        int i = 0;
+        while (true) {
+            if (timerProcesses.size() >= 10) {
+                break;
+            }
+
+            timerProcesses.offer(new TimerProcess(i++, new TimerProcess.Action() {
+                @Override
+                public void run() {
+                    try {
+                        Call<BasicResponse> call = api.isCanReserve();
+                        Response<BasicResponse> response = call.execute();
+                        System.out.println("response: " + response.raw().toString());
+                        if (response.isSuccessful()) {
+                            System.out.println("response: " + response.body().toString());
+                            updateResult(response.body().toString());
+                            if(response.body().getStatus() != 200) {
+
+                            }
+                        } else {
+                            System.out.println("response: " + response.raw().toString());
+                            updateResult(response.raw().toString());
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    try {
+                        Call<ResponseBody> call = api.passInfoDetail();
+                        Response<ResponseBody> response = null;
+                        response = call.execute();
+                        if (response.isSuccessful()) {
+                            String body = response.body().string();
+                            System.out.println(body);
+                        } else {
+                            System.out.println(response.code());
+                            System.out.println(response.errorBody().string());
+                            String body = response.body().string();
+                            System.out.println(body);
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }));
+        }
+
+        updateResult("hackTask11 prepared： " + hackTask1s.size());
+    }
+
     void hack1() {
         updateResult("hackTask1 prepare");
 
@@ -608,6 +683,46 @@ public class UserPane extends AnchorPane {
             hackTask1s.offer(new HackTask1(api, Configure.timeOffset + i++, new HackTask1.Listener() {
                 @Override
                 public RoomInfo getRoomInfo() {
+
+                    while (true) {
+                        try {
+//                            Call<ResponseBody> call = api.passInfoDetail();
+//                            Response<ResponseBody> response = call.execute();
+//                            System.out.println(response);
+//
+//                            if (response.isSuccessful()) {
+//                                String html = response.body().string();
+//                                updateResult(html);
+//                                Document document = Jsoup.parse(html);
+//
+//                                                Elements elements1 = document.getElementsByAttribute("data-date");
+//                Elements elements2 = document.getElementsByAttribute("data-timespan");
+//                Elements elements3 = document.getElementsByAttribute("data-sign");
+//
+//                String checkinDate = elements1.last().attr("data-date");
+//                String timespan = elements1.last().attr("data-timespan");
+//                String sign = elements1.last().attr("data-sign");
+//                            }
+
+                            Call<BasicResponse<List<RoomInfo>>> call = api.getDistrictHouseList(null);
+                            Response<BasicResponse<List<RoomInfo>>> response = call.execute();
+                            if (response.isSuccessful()) {
+                                if (200 != response.body().getStatus()) {
+                                    continue;
+                                }
+                                roomInfos = response.body().getData();
+                                updateResult(new Gson().toJson(response.body()));
+                                invalidate();
+                                Thread.sleep(1000 * 3);
+                                if (new Date().after(TimeManager.beginTime())) {
+                                    break;
+                                }
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+
                     RoomInfo roomInfo = roomInfos.get(0);
                     for (RoomInfo item : roomInfos) {
                         if (item.getCount() > roomInfo.getCount()) {
@@ -642,6 +757,26 @@ public class UserPane extends AnchorPane {
             hackTask2s.offer(new HackTask2(api, Configure.timeOffset + i++, new HackTask2.Listener() {
                 @Override
                 public RoomInfo getRoomInfo() {
+                    while (true) {
+                        try {
+                            Call<BasicResponse<List<RoomInfo>>> call = api.getDistrictHouseList(null);
+                            Response<BasicResponse<List<RoomInfo>>> response = call.execute();
+                            if (response.isSuccessful()) {
+                                if (200 != response.body().getStatus()) {
+                                    continue;
+                                }
+                                roomInfos = response.body().getData();
+                                updateResult(new Gson().toJson(response.body()));
+                                invalidate();
+                                Thread.sleep(1000 * 3);
+                                if (new Date().after(TimeManager.beginTime())) {
+                                    break;
+                                }
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
                     RoomInfo roomInfo = roomInfos.get(0);
                     for (RoomInfo item : roomInfos) {
                         if (item.getCount() > roomInfo.getCount()) {

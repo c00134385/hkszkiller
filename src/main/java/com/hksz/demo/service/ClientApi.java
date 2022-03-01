@@ -61,6 +61,9 @@ public interface ClientApi {
     @POST("/passInfo/userCenterIsCanReserve")
     Call<BasicResponse> isCanReserve();
 
+    @GET("/passInfo/detail")
+    Call<ResponseBody> passInfoDetail();
+
     @POST("/orderInfo/getCheckInDate")
     Call<ResponseBody> getCheckInDate();
 

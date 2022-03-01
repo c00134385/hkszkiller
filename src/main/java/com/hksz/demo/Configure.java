@@ -8,7 +8,7 @@ import java.util.List;
 public class Configure {
 //    public static String host = "http://fanyi.youdao.com/";
     public static String host = "https://hk.sz.gov.cn:8118/";
-    public static long timeOffset = -100;
+    public static long timeOffset = 0;
     public static int taskCount = 110;
     private static String[] userAccounts =
             {
